@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-server-deployment
+  namespace: cc
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: my-server
+  template:
+    metadata:
+      labels:
+        app: my-server
+    spec:
+      containers:
+      - name: my-server
+        image: elahesdi/url-shortener:1.0.4
+        ports:
+        - containerPort: 8085
+        envFrom:
+        - configMapRef:
+            name: my-server-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-server
+  namespace: cc
+spec:
+  selector:
+    app: my-server
+  ports:
+  - protocol: TCP
+    port: 8085
+    targetPort: 8085
+  type: NodePort
+

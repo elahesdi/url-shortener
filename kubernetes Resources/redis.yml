@@ -1,0 +1,81 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: redis-pv
+  namespace: cc
+spec:
+  storageClassName: local-storage
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: /home/radin/redis
+  nodeAffinity:
+   required:
+     nodeSelectorTerms:
+     - matchExpressions:
+       - key: kubernetes.io/hostname
+         operator: In
+         values:
+         - kuber-2
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: redis
+  namespace: cc
+spec:
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+  namespace: cc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: redis-pvc
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: cc
+spec:
+  selector:
+    app: redis
+  ports:
+  - protocol: TCP
+    port: 6379
+    targetPort: 6379
+

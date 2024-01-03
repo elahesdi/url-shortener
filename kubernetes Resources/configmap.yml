@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-server-configmap
+  namespace: cc
+data:
+  SERVER_PORT: "8085"
+  REDIS_DURATION: "5"
+  API_URLSHORTENER: "https://api.apilayer.com/short_url/hash"
+  API_KEY: "sRwXp6WU8R7K7XPsOWDYo1sXaezh2n2p"
+
